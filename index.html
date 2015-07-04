@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.min.js"></script>
+	<title></title>
+</head>
+<body  ng-controller="testController">
+
+<h1>Timekeeper</h1>
+<p>Keeps multiple time instances. it includes countdown timer, countup timer and current timer</p>
+<p>You can also set alarm on the timers</p>
+
+<button ng-click="add()">Add CountUp Timer</button>
+<button ng-click="getCountDownTimer(cdt)">Add CountDown Timer</button>
+<input type="text" ng-model="cdt" ng-init="cdt = '00:01:00'">	
+
+<ul>
+	<li ng-repeat="d in ds" ng-init="d.tempAlarmModel = '00:00:30'">{{d.secs}} ({{d.getHours|timepad}}:{{d.getMinutes|timepad}}:{{d.getSeconds|timepad}}) 
+		<button ng-click="start(d)">Start</button>
+		<button ng-click="pause(d)">Pause</button>
+		<button ng-click="reset(d)">Reset</button>
+		<button ng-click="remove(d)">Remove</button>
+		<input type="text" ng-model="d.tempAlarmModel">		
+		<button ng-click="setAlarm(d)">set Alarm</button>	
+	</li>
+</ul>
+
+<button ng-click="getCurrentTime()">Add Current Time</button>
+<ul>
+	<li ng-repeat="c in ct">{{c}}
+	<button ng-click="remove(c)">Remove</button>
+	</li>
+</ul>
+
+
+<script type="text/javascript" src="timekeeper.js"></script>
+<script type="text/javascript">	
+var app = angular.module('app',['timekeeper'])
+.controller('testController',function($scope,$timeout,tk){
+		$scope.ds=[];
+		$scope.ct = [];
+		$scope.cd = [];
+
+		$scope.add = function(){
+			$scope.ds.push(tk.getCountUpTimer(0))
+		}
+
+		$scope.start = function(d){
+			d.start;
+		}
+		$scope.pause = function(d){
+			d.pause;
+		}
+		$scope.reset = function(d){
+			d.reset;
+		}
+
+		$scope.getCurrentTime = function(){
+			$scope.ct.push(tk.getCurrentTime());
+		};
+
+		$scope.remove = function(o){
+			var r = tk.remove(o);
+			if(r){
+				if(o.isDateObject)
+					$scope.ct.splice($scope.ct.indexOf(o),1);
+				else
+					$scope.ds.splice($scope.ds.indexOf(o),1);
+			}
+		};
+
+		$scope.getCountDownTimer = function(o){
+			var alarm = o.split(':');
+			$scope.ds.push(tk.getCountDownTimer(tk.toSecs(parseInt(alarm[0]),parseInt(alarm[1]),parseInt(alarm[2]))));
+		}
+
+        $scope.setAlarm = function(o){
+        	var alarm = o.tempAlarmModel.split(':');
+			o.alarm = tk.toSecs(parseInt(alarm[0]),parseInt(alarm[1]),parseInt(alarm[2]));
+        	
+        };
+
+
+		$scope.$on('alarmOn', function(event,data) {
+	      alert('alarm teigggerd from '+data.index);
+        });
+	});
+
+</script>
+</body>
+</html>
